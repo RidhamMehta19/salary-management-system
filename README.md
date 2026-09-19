@@ -33,11 +33,11 @@ npm --prefix frontend install
 npm --prefix frontend start
 ```
 
-The UI runs at `http://localhost:4200`; the API runs at `http://localhost:8080`. Docker PostgreSQL is intentionally not published to the host because the backend connects over the internal Compose network. Flyway creates the schema on API startup. If host tools need direct database access, add a free mapping such as `5434:5432` to the PostgreSQL service.
+The UI runs at `http://localhost:4200`; the API runs at `http://localhost:8080`. Docker PostgreSQL is intentionally not published to the host because the backend connects over the internal Compose network. Local Compose enables the deterministic `seed` profile and creates 10,000 employees on the first empty database. Flyway creates the schema on API startup. If host tools need direct database access, add a free mapping such as `5434:5432` to the PostgreSQL service.
 
 ## Seed 10,000 employees
 
-Use the `seed` profile only against an empty demo database:
+For Docker Compose, the `seed` profile is enabled automatically. For a backend started outside Docker, use the profile only against an empty demo database:
 
 ```bash
 SPRING_PROFILES_ACTIVE=seed mvn -f backend/pom.xml spring-boot:run
