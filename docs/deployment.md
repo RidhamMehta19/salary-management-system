@@ -4,7 +4,7 @@ The intended topology is a static Angular host (Vercel, Netlify, or Cloudflare P
 
 ## 1. Create PostgreSQL
 
-Create a PostgreSQL 15+ database and record its JDBC URL, username, and password. Ensure the provider accepts external connections from the backend service.
+Create a PostgreSQL 15+ database and record its JDBC URL, username, and password. Ensure the provider accepts external connections from the backend service. The backend includes Flyway's PostgreSQL database adapter explicitly, which is required by current Flyway versions.
 
 ## 2. Configure the backend
 
