@@ -19,10 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.Instant;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 class DemoDataSeeder implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DemoDataSeeder.class);
     private static final int EMPLOYEE_COUNT = 10_000;
+    private static final Instant SEEDED_AT = Instant.parse("2026-01-01T00:00:00Z");
     private static final String[] FIRST_NAMES = {"Aarav", "Aisha", "Amelia", "Arjun", "Ava", "Benjamin", "Charlotte", "Daniel", "Emma", "Ethan", "Fatima", "Harper", "Ishaan", "James", "Layla", "Liam", "Maya", "Noah", "Olivia", "Priya", "Riya", "Sophia", "Vihaan", "William", "Zara"};
     private static final String[] LAST_NAMES = {"Anderson", "Brown", "Chen", "Davis", "Garcia", "Gupta", "Harris", "Johnson", "Khan", "Lee", "Martin", "Mehta", "Miller", "Patel", "Robinson", "Shah", "Singh", "Smith", "Taylor", "Thomas", "Walker", "Wilson", "Wong", "Young", "Zhang"};
     private static final List<Office> OFFICES = List.of(
@@ -68,9 +72,10 @@ class DemoDataSeeder implements CommandLineRunner {
                 employees.add(createEmployee(index, random, departments));
             }
             List<Employee> savedEmployees = employeeRepository.saveAll(employees);
-            List<SalaryHistory> history = savedEmployees.stream().map(employee -> new SalaryHistory(employee,
+            List<SalaryHistory> history = savedEmployees.stream().map(employee -> new SalaryHistory(
+                    deterministicId("salary-history-" + employee.getEmployeeNumber()), employee,
                     employee.getCurrency(), employee.getBaseSalary(), employee.getBonus(), employee.getHireDate(),
-                    "Initial compensation")).toList();
+                    "Initial compensation", SEEDED_AT)).toList();
             salaryHistoryRepository.saveAll(history);
         }
         log.info("Seeded {} deterministic employee records", EMPLOYEE_COUNT);
@@ -85,10 +90,10 @@ class DemoDataSeeder implements CommandLineRunner {
         BigDecimal bonus = baseSalary.multiply(BigDecimal.valueOf(0.04 + (index % 9) * 0.01)).setScale(2, RoundingMode.HALF_UP);
         String firstName = FIRST_NAMES[index % FIRST_NAMES.length];
         String lastName = LAST_NAMES[(index / FIRST_NAMES.length) % LAST_NAMES.length];
-        return new Employee(String.format("EMP-%05d", index + 1), firstName, lastName,
+        return new Employee(deterministicId("employee-" + index), String.format("EMP-%05d", index + 1), firstName, lastName,
                 "employee." + (index + 1) + "@example.org", departments.get(departmentName),
                 titleFor(departmentName), office.country(), office.location(), statusFor(index),
-                LocalDate.of(2014, 1, 1).plusDays(index % 4200), office.currency(), baseSalary, bonus);
+                LocalDate.of(2014, 1, 1).plusDays(index % 4200), office.currency(), baseSalary, bonus, SEEDED_AT, SEEDED_AT);
     }
 
     private BigDecimal currencyMultiplier(String currency) {
@@ -119,6 +124,10 @@ class DemoDataSeeder implements CommandLineRunner {
             case "Operations" -> "Operations Manager";
             default -> "Customer Success Manager";
         };
+    }
+
+    private UUID deterministicId(String value) {
+        return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8));
     }
 
     private record Office(String country, String location, String currency) {

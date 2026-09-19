@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -50,8 +51,20 @@ public class SalaryHistory {
         this.changeReason = changeReason;
     }
 
+    public SalaryHistory(UUID id, Employee employee, String currency, BigDecimal baseSalary, BigDecimal bonus,
+                         LocalDate effectiveDate, String changeReason, Instant recordedAt) {
+        this.id = Objects.requireNonNull(id);
+        this.employee = employee;
+        this.currency = currency;
+        this.baseSalary = baseSalary;
+        this.bonus = bonus;
+        this.effectiveDate = effectiveDate;
+        this.changeReason = changeReason;
+        this.recordedAt = Objects.requireNonNull(recordedAt);
+    }
+
     @PrePersist
-    void onCreate() { recordedAt = Instant.now(); }
+    void onCreate() { if (recordedAt == null) recordedAt = Instant.now(); }
 
     public UUID getId() { return id; }
     public String getCurrency() { return currency; }

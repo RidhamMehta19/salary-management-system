@@ -1,6 +1,6 @@
 # Seeding 10,000 Employees
 
-The application includes a deterministic `seed` Spring profile. It creates eight departments and 10,000 realistic-looking employee records in batches of 250. The data uses fixed names, offices, currencies, salary ranges, employment statuses, and a fixed random seed (`20260919L`). Employee IDs and emails are unique. An initial salary-history snapshot is created for every employee.
+The application includes a fully deterministic `seed` Spring profile. It creates eight departments and 10,000 realistic-looking employee records in batches of 250. The data uses fixed names, offices, currencies, salary ranges, employment statuses, a fixed random seed (`20260919L`), name-derived UUIDs, and a fixed technical timestamp (`2026-01-01T00:00:00Z`). Employee IDs and emails are unique. An initial salary-history snapshot is created for every employee.
 
 The seed is intentionally skipped when any employee already exists, so restarting the application cannot duplicate data.
 
@@ -23,5 +23,13 @@ SPRING_PROFILES_ACTIVE=seed mvn -f backend/pom.xml spring-boot:run
 ```
 
 If the API is running in Docker, set `SPRING_PROFILES_ACTIVE=seed` on the `backend` service and recreate that service once. Verify the result with `GET /api/employees?size=1` and `GET /api/dashboard/summary`.
+
+For an exact cardinality and uniqueness check against a seeded PostgreSQL database, run:
+
+```bash
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE backend/scripts/verify-seed.sh
+```
+
+It verifies 10,000 employees, 10,000 distinct employee numbers, 10,000 distinct emails, and 10,000 salary-history records. It is intentionally a separate operational command so the normal test suite does not seed 10,000 rows.
 
 Seeding is demo data only. Production environments should use a reviewed import process and should not enable this profile against an existing database.

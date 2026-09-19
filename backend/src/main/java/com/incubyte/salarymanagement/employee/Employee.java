@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
@@ -79,6 +80,28 @@ public class Employee {
         this.bonus = bonus;
     }
 
+    public Employee(UUID id, String employeeNumber, String firstName, String lastName, String email,
+                    Department department, String jobTitle, String country, String location,
+                    EmploymentStatus status, LocalDate hireDate, String currency,
+                    BigDecimal baseSalary, BigDecimal bonus, Instant createdAt, Instant updatedAt) {
+        this.id = Objects.requireNonNull(id);
+        this.employeeNumber = employeeNumber;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.department = department;
+        this.jobTitle = jobTitle;
+        this.country = country;
+        this.location = location;
+        this.status = status;
+        this.hireDate = hireDate;
+        this.currency = currency;
+        this.baseSalary = baseSalary;
+        this.bonus = bonus;
+        this.createdAt = Objects.requireNonNull(createdAt);
+        this.updatedAt = Objects.requireNonNull(updatedAt);
+    }
+
     public void update(String firstName, String lastName, String email, Department department,
                        String jobTitle, String country, String location, EmploymentStatus status,
                        LocalDate hireDate, String currency, BigDecimal baseSalary, BigDecimal bonus) {
@@ -101,8 +124,8 @@ public class Employee {
     @PrePersist
     void onCreate() {
         Instant now = Instant.now();
-        createdAt = now;
-        updatedAt = now;
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
     }
 
     @PreUpdate
