@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/salary_management}
+    username: ${DATABASE_USERNAME:salary_user}
+    password: ${DATABASE_PASSWORD:salary_password}

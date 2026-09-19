@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: salary-management-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/salary_management}
+    username: ${DATABASE_USERNAME:salary_user}
+    password: ${DATABASE_PASSWORD:salary_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+logging:
+  level:
+    com.incubyte.salarymanagement: INFO
