@@ -33,7 +33,7 @@ npm --prefix frontend install
 npm --prefix frontend start
 ```
 
-The UI runs at `http://localhost:4200`; the API runs at `http://localhost:8080`; Docker PostgreSQL is exposed on host port `5433` by default and remains on port `5432` inside Compose. Flyway creates the schema on API startup. If running the API outside Docker, use `jdbc:postgresql://localhost:5433/salary_management` when connecting to the Compose database.
+The UI runs at `http://localhost:4200`; the API runs at `http://localhost:8080`. Docker PostgreSQL is intentionally not published to the host because the backend connects over the internal Compose network. Flyway creates the schema on API startup. If host tools need direct database access, add a free mapping such as `5434:5432` to the PostgreSQL service.
 
 ## Seed 10,000 employees
 
