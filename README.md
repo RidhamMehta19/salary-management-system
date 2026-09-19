@@ -33,7 +33,7 @@ npm --prefix frontend install
 npm --prefix frontend start
 ```
 
-The UI runs at `http://localhost:4200`; the API runs at `http://localhost:8080`. Flyway creates the schema on API startup. If running the API outside Docker, copy [.env.example](.env.example), start PostgreSQL, and run `mvn -f backend/pom.xml spring-boot:run`.
+The UI runs at `http://localhost:4200`; the API runs at `http://localhost:8080`; Docker PostgreSQL is exposed on host port `5433` by default and remains on port `5432` inside Compose. Flyway creates the schema on API startup. If running the API outside Docker, use `jdbc:postgresql://localhost:5433/salary_management` when connecting to the Compose database.
 
 ## Seed 10,000 employees
 

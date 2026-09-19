@@ -6,11 +6,13 @@ The seed is intentionally skipped when any employee already exists, so restartin
 
 ## Local Docker flow
 
-Start PostgreSQL and the API:
+Start PostgreSQL and the API. Compose exposes PostgreSQL on host port `5433` by default to avoid conflicts with an existing local PostgreSQL installation:
 
 ```bash
 docker compose up --build -d
 ```
+
+If host port `5433` is also occupied, set `POSTGRES_HOST_PORT` to another free port before starting Compose. The backend container always connects to `postgres:5432` on the internal Compose network.
 
 For a fresh database, start the backend with the seed profile:
 
