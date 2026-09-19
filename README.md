@@ -11,7 +11,7 @@ Demo video: `VIDEO_DEMO_URL`
 - Employee directory with server-side pagination, name/ID search, department/country/status filters, and allow-listed sorting.
 - Employee create/edit/detail workflows, deactivation/reactivation, validation, and user feedback.
 - Append-only salary-history snapshots with effective dates and change reasons.
-- Deterministic 10,000-employee demo seed, PostgreSQL migrations, health endpoint, and environment-driven CORS.
+- Fully deterministic 10,000-employee demo seed, PostgreSQL migrations, health endpoint, and environment-driven CORS.
 
 ## Architecture and stack
 
@@ -29,7 +29,7 @@ Prerequisites: Java 21, Maven 3.9+, Node.js 20+, npm, and Docker for the easiest
 
 ```bash
 docker compose up --build -d
-npm --prefix frontend install
+npm --prefix frontend ci
 npm --prefix frontend start
 ```
 
@@ -43,7 +43,7 @@ For Docker Compose, the `seed` profile is enabled automatically. For a backend s
 SPRING_PROFILES_ACTIVE=seed mvn -f backend/pom.xml spring-boot:run
 ```
 
-The profile is deterministic, batched, idempotent when data already exists, and creates salary-history snapshots. Full details are in [seeding](docs/seeding.md).
+The profile is fully deterministic (including technical UUIDs and timestamps), batched, idempotent when data already exists, and creates salary-history snapshots. Verify a seeded PostgreSQL database with `DATABASE_URL=... backend/scripts/verify-seed.sh`. Full details are in [seeding](docs/seeding.md).
 
 ## Tests and builds
 
@@ -73,7 +73,7 @@ The backend integration test uses H2 to verify Flyway and API behavior without r
 
 ## Deployment
 
-Build the backend with [backend/Dockerfile](backend/Dockerfile) and configure `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `CORS_ALLOWED_ORIGINS`, and `PORT`. Configure the static frontend's `public/app-config.js` with the deployed API URL before `npm run build`. Follow [deployment](docs/deployment.md) for exact free/low-cost hosting steps.
+Build the backend with [backend/Dockerfile](backend/Dockerfile) and configure `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `CORS_ALLOWED_ORIGINS`, and `PORT`. The committed frontend config uses safe same-origin `/api`; local `npm start` proxies to `http://localhost:8080`, while deployment must replace the emitted `app-config.js` with the deployed API URL. Follow [deployment](docs/deployment.md) for exact steps.
 
 ## Project structure
 

@@ -29,13 +29,15 @@ Verify `https://YOUR-API/actuator/health` returns `{"status":"UP"}` and that `GE
 
 ## 4. Configure and deploy the frontend
 
-Before the static build, replace `frontend/public/app-config.js` with the deployed API URL:
+The committed `frontend/public/app-config.js` deliberately contains only the safe same-origin value `/api`; it never ships a localhost backend URL. `npm start` uses `frontend/proxy.conf.json`, which proxies `/api` to `http://localhost:8080` for local development.
+
+After building, configure the static host (or its deployment hook) to replace the emitted `app-config.js` with the deployed API URL:
 
 ```js
 window.APP_CONFIG = { API_BASE_URL: 'https://YOUR-API/api' };
 ```
 
-Alternatively, have the host's build step generate that file from `API_BASE_URL`. Set `API_BASE_URL` in the frontend host, run `npm ci`, then `npm run build`. Publish `frontend/dist/frontend/browser` (or the output folder shown by the Angular CLI). Configure SPA fallback to `index.html` so deep links work.
+Alternatively, have the host's deployment step generate that file from `API_BASE_URL`. Set `API_BASE_URL` in the frontend host, run `npm ci`, then `npm run build`, and verify the published `app-config.js` contains `https://YOUR-API/api` rather than `localhost`. Publish `frontend/dist/frontend` (or the output folder shown by the Angular CLI). Configure SPA fallback to `index.html` so deep links work.
 
 ## 5. Verify production
 
