@@ -7,13 +7,13 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Monorepo initialized with `backend/`, `frontend/`, and `docs/`.
 - [x] Incremental Git history started with initialization and requirements commits.
 - [x] One-page product requirements document created before application code.
-- [x] Production-ready backend completed and documented.
-- [x] Production-ready Angular/PrimeNG UI completed and documented.
+- [x] Backend implementation completed and documented.
+- [x] Angular/PrimeNG UI implementation completed and documented.
 - [x] PostgreSQL schema and migrations completed and documented.
 - [x] Deterministic 10,000-employee seed completed and documented.
 - [x] Unit and API integration tests completed and documented.
-- [ ] Local Docker workflow verified (Compose config passes; Docker daemon was unavailable for image build).
-- [x] Production build and deployment configuration verified.
+- [x] Local Docker workflow verified: clean Compose startup, Flyway migration, deterministic 10,000-row seed, health endpoint, and API flow verified on 2026-09-20.
+- [x] Frontend production build verified locally; deployment remains unverified.
 - [x] Final self-review completed.
 - [ ] Live deployment and demo video supplied by the applicant.
 
@@ -31,7 +31,7 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Centralized validation, not-found, duplicate, and unexpected-error responses.
 - [x] Backend tests: service rules, pagination metadata, dashboard mapping, validation/error handling, Flyway startup, and API flow.
 - [x] Backend checkpoint committed as `139e975` and `12cac67`.
-- [x] Backend `mvn test` passing: 9 tests, 0 failures, 0 errors.
+- [x] Backend `mvn test` passing: 12 tests, 0 failures, 0 errors (verified 2026-09-20).
 
 ## Current frontend stage
 
@@ -46,7 +46,7 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Add/edit employee form with validation and salary-change reason.
 - [x] Deactivation confirmation and success/error feedback verification.
 - [x] Frontend unit tests for API service, filtering, dashboard response handling, form validation, and status behavior (6 specs).
-- [x] Frontend production build and test run.
+- [x] Frontend production build and ChromeHeadless test run: 8 specs passing (verified 2026-09-20).
 
 ## Remaining implementation and review
 
@@ -55,9 +55,9 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Add root README with local setup, API overview, deployment placeholders, and submission checklist.
 - [x] Add final review documenting implemented scope, exclusions, limitations, technical debt, and interview discussion points.
 - [x] Review for dead code, hard-coded secrets, broken imports, unimplemented UI actions, and mismatched documentation.
-- [x] Run backend `mvn test`, `mvn verify`, and package build.
-- [x] Run frontend `npm test` and production build.
-- [ ] Verify Docker build and local startup where Docker/PostgreSQL are available (Docker daemon unavailable here).
+- [x] Run backend `mvn clean test` and `mvn clean verify`: 12 tests passing (verified 2026-09-20).
+- [x] Run frontend `npm ci`, `npm test`, and production build.
+- [x] Verify Docker build and clean local PostgreSQL startup: migration, seed cardinality/uniqueness, health, and core API flow passed (verified 2026-09-20).
 - [x] Create final incremental Git commits after each completed stage.
 - [ ] Applicant action: deploy the app, record the demo, and submit repository/live/demo URLs by email.
 

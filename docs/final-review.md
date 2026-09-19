@@ -7,8 +7,8 @@
 - Employee CRUD-like workflow with non-destructive status changes and salary-history snapshots.
 - Server-side directory search/filter/sort/pagination suitable for 10,000 records.
 - Dashboard aggregates from persisted data, grouped by currency where conversion is unspecified.
-- Deterministic seeded dataset, Angular/PrimeNG responsive UI, loading/empty/error states, confirmation, and success feedback.
-- Backend unit/API integration tests and frontend ChromeHeadless tests.
+- Fully deterministic seeded dataset, Angular/PrimeNG responsive UI, loading/empty/error states, confirmation, and success feedback.
+- Backend unit/API integration tests and frontend ChromeHeadless tests (locally verified 2026-09-20).
 - Docker, environment examples, deployment instructions, architecture/design/testing/AI artifacts, and incremental Git history.
 
 ## Intentionally excluded
@@ -17,7 +17,7 @@ Authentication and authorization, SSO, audit identity, payroll/tax/benefits, cur
 
 ## Known limitations and technical debt
 
-- The current frontend runtime config uses a generated static `app-config.js`; the hosting build must replace its API URL.
+- The current frontend runtime config uses a safe same-origin `/api` default; the hosting deployment must replace `app-config.js` with its deployed API URL when frontend and backend are on different origins.
 - Dashboard values are not exchange-rate normalized and must be read with their currency labels.
 - No browser end-to-end test runs against a deployed provider; the API integration test and component/service tests cover the core behavior.
 - The directory currently has no debounced search-on-type; Enter or filter changes trigger a request.
