@@ -1,0 +1,18 @@
+.DS_Store
+.idea/
+.vscode/
+
+# Java / Maven
+backend/target/
+*.class
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# Environment and local data
+.env
+.env.local
+*.log
+postgres-data/
