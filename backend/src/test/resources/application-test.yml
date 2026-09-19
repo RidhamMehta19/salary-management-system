@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:salary_management;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+app:
+  cors:
+    allowed-origins: http://localhost:4200
