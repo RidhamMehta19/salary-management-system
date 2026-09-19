@@ -50,6 +50,12 @@ class EmployeeApiIntegrationTest {
         mockMvc.perform(get("/api/employees/{id}/salary-history", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].changeReason").value("Initial compensation"));
+        mockMvc.perform(get("/api/dashboard/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activeEmployees").value(0));
+        mockMvc.perform(get("/api/dashboard/by-department")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/dashboard/by-country")).andExpect(status().isOk());
+        mockMvc.perform(get("/api/dashboard/salary-distribution")).andExpect(status().isOk());
         assertThat(employeeRepository.count()).isEqualTo(1);
     }
 }
