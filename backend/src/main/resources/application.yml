@@ -6,8 +6,17 @@ spring:
     username: ${DATABASE_USERNAME:salary_user}
     password: ${DATABASE_PASSWORD:salary_password}
     hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:5}
+      minimum-idle: ${DB_POOL_MIN_IDLE:1}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT:5000}
+      keepalive-time: ${DB_KEEPALIVE_TIME:30000}
+      max-lifetime: ${DB_MAX_LIFETIME:240000}
       data-source-properties:
-        reWriteBatchedInserts: true
+        reWriteBatchedInserts: ${DB_REWRITE_BATCHED_INSERTS:true}
+        tcpKeepAlive: ${DB_TCP_KEEP_ALIVE:true}
+        socketTimeout: ${DB_SOCKET_TIMEOUT:120}
+        connectTimeout: ${DB_CONNECT_TIMEOUT:30}
   jpa:
     hibernate:
       ddl-auto: validate
