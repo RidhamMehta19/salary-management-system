@@ -2,8 +2,13 @@
 
 SalaryFlow is a focused employee salary-management application for an HR Manager. It replaces spreadsheet workflows with searchable employee records, salary history, and database-backed compensation insights for an organisation of approximately 10,000 people.
 
-Live application: `LIVE_APP_URL`  
-Demo video: `VIDEO_DEMO_URL`
+## Live Demo
+
+- Application: https://salary-management-portal-enhance.netlify.app
+- API health: https://salary-management-system-iwe0.onrender.com/actuator/health
+- Demo video: VIDEO_LINK_PLACEHOLDER
+
+Free-tier hosting may take a while to wake up. If the first load is slow, wait about 60 seconds for the backend to wake up and refresh.
 
 ## Features
 
@@ -75,11 +80,22 @@ Updates require the response `version` in the PUT body; stale versions return HT
 
 ## Deployment
 
-Build the backend with [backend/Dockerfile](backend/Dockerfile) and configure `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `CORS_ALLOWED_ORIGINS`, and `PORT`. The committed frontend config uses safe same-origin `/api`; local `npm start` proxies to `http://localhost:8080`, while deployment must replace the emitted `app-config.js` with the deployed API URL. Follow [deployment](docs/deployment.md) for exact steps.
+- Netlify hosts the Angular frontend. Use `frontend` as the base directory and `dist/frontend` as the publish directory.
+- Render hosts the Dockerized Spring Boot backend from the `backend` root directory. Configure the health check path as `/actuator/health`.
+- Neon provides the managed PostgreSQL database.
 
-### Deployment prerequisites
+Backend environment variable names:
 
-Authentication, authorization, and an audit identity are required before real salary data is used. These are intentionally not implemented in this assessment.
+```text
+DATABASE_URL
+DATABASE_USERNAME
+DATABASE_PASSWORD
+CORS_ALLOWED_ORIGINS
+SPRING_PROFILES_ACTIVE   # seed on first boot only
+JAVA_TOOL_OPTIONS
+```
+
+The frontend API URL is set through `app-config.js` at build time. See [deployment](docs/deployment.md) for provider setup details.
 
 ## Project structure
 
@@ -90,8 +106,16 @@ docs/          Requirements, architecture, operations, testing, AI, and review a
 docker-compose.yml
 ```
 
-## Engineering decisions and limitations
+## Design decisions and trade-offs
 
-Authentication, role-based access, payroll processing, tax/benefit logic, currency conversion, bulk imports, and employee deletion are intentionally out of scope because the assessment does not define them. Salary figures remain grouped by currency to avoid false precision. Add authentication and audit identity before production use with real employee data.
+- The application is a modular monolith: it keeps deployment simple while separating employee, salary, dashboard, and department responsibilities.
+- Salary-history snapshots preserve the compensation state and reason for each change; salary figures remain grouped by currency to avoid false precision.
+- Optimistic locking uses the `version` field, and stale edits return HTTP 409.
+- Case-insensitive unique indexes protect employee numbers and email addresses after canonicalization.
+- Deterministic pagination keeps directory results stable while clients move through pages.
+- `pg_trgm` indexes provide the search path for the 1M-row employee dataset.
+- Testcontainers PostgreSQL integration tests exercise the API against the same Flyway-managed database technology used in deployment.
+- The background batched idempotent seeder is designed for slow hosts and high-latency databases.
+- Authentication, authorization, and audit identity are intentionally out of scope, but are required before real salary data is used.
 
 The AI workflow and review boundaries are documented in [ai-workflow](docs/ai-workflow.md). See [testing strategy](docs/testing-strategy.md) for coverage intent and [final review](docs/final-review.md) for known limitations and interview discussion points.
