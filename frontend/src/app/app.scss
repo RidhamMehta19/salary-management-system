@@ -1,15 +1,36 @@
 .shell { min-height: 100vh; display: grid; grid-template-columns: 236px 1fr; }
 .sidebar { background: #102a43; color: #eaf2f8; display: flex; flex-direction: column; padding: 1.5rem 1rem; }
-.brand { align-items: center; color: #fff; display: flex; font-size: 1.2rem; font-weight: 750; gap: .55rem; letter-spacing: -.04em; text-decoration: none; }
+.brand { align-items: center; color: #fff; display: flex; font-size: 1.2rem; font-weight: 750; gap: .55rem; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
 .brand-mark { align-items: center; background: #2cb67d; border-radius: 9px; display: inline-flex; height: 30px; justify-content: center; width: 30px; }
 .brand-accent { color: #76e4b2; }
 .workspace-label { color: #9fb3c8; font-size: .72rem; font-weight: 700; letter-spacing: .1em; margin: 2.6rem .7rem .55rem; text-transform: uppercase; }
 nav { display: grid; gap: .35rem; }
-nav a { border-radius: 8px; color: #c7d9e8; display: flex; font-weight: 600; gap: .7rem; padding: .7rem; text-decoration: none; }
+nav a { align-items: center; border-radius: 8px; color: #c7d9e8; display: flex; font-weight: 600; gap: .7rem; padding: .7rem; text-decoration: none; }
 nav a:hover, nav a.active { background: #243b53; color: #fff; }
-nav a span { color: #76e4b2; width: 1rem; }
-.sidebar-note { border-top: 1px solid #334e68; color: #9fb3c8; font-size: .8rem; margin: auto .4rem 0; padding-top: 1rem; }
-.sidebar-note span { color: #76e4b2; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.sidebar-note p { line-height: 1.45; margin-bottom: 0; }
+nav a i { color: #76e4b2; font-size: 1rem; text-align: center; width: 1rem; }
 .content { background: #f5f7fa; min-width: 0; padding: 2rem clamp(1rem, 3vw, 3rem); }
-@media (max-width: 720px) { .shell { grid-template-columns: 1fr; } .sidebar { padding: 1rem; } .workspace-label, .sidebar-note { display: none; } nav { grid-template-columns: repeat(2, 1fr); } .content { padding: 1.25rem 1rem; } }
+@media (max-width: 720px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    padding: 1rem;
+  }
+
+  .brand {
+    align-self: flex-start;
+  }
+
+  .workspace-label {
+    display: none;
+  }
+
+  nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .content {
+    padding: 1.25rem 1rem;
+  }
+}

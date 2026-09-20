@@ -15,14 +15,13 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     <div class="shell">
       <aside class="sidebar">
         <a class="brand" routerLink="/dashboard" aria-label="Salary Management home">
-          <span class="brand-mark">S</span><span>Salary<span class="brand-accent">Flow</span></span>
+          <span class="brand-mark">S</span><span>Salary <span class="brand-accent">Flow</span></span>
         </a>
         <p class="workspace-label">HR workspace</p>
         <nav aria-label="Primary navigation">
-          <a routerLink="/dashboard" routerLinkActive="active"><span>▦</span>Dashboard</a>
-          <a routerLink="/employees" routerLinkActive="active"><span>◎</span>Employees</a>
+          <a routerLink="/dashboard" routerLinkActive="active"><i class="pi pi-home" aria-hidden="true"></i><span>Dashboard</span></a>
+          <a routerLink="/employees" routerLinkActive="active"><i class="pi pi-users" aria-hidden="true"></i><span>Employees</span></a>
         </nav>
-        <div class="sidebar-note"><span>10k-ready</span><p>Server-side data views keep the HR workspace fast.</p></div>
       </aside>
       <main class="content"><router-outlet /></main>
     </div>

@@ -1,0 +1,95 @@
+<header class="page-header">
+<div>
+<a class="back-link" routerLink="/employees">← Back to employees</a>
+<p class="eyebrow">{{ editing ? 'Employee record' : 'New record' }}</p>
+<h1>{{ editing ? 'Edit employee' : 'Add employee' }}</h1>
+<p class="subtitle">Keep people data and annual compensation accurate.</p>
+</div>
+</header>
+    @if (loading()) { <div class="loading-panel">
+<p-progressSpinner ariaLabel="Loading form" />
+</div> } @else { @if (error()) { <p-message severity="error" [text]="error()!" /> } <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+<p-card header="Employee information">
+<div class="form-grid">
+<div class="field">
+<label for="employeeNumber">Employee ID *</label>
+<input pInputText id="employeeNumber" formControlName="employeeNumber" />
+<small class="error-text">{{ validationMessage('employeeNumber') }}</small>
+</div>
+<div class="field">
+<label for="email">Work email *</label>
+<input pInputText id="email" type="email" formControlName="email" />
+<small class="error-text">{{ validationMessage('email') }}</small>
+</div>
+<div class="field">
+<label for="firstName">First name *</label>
+<input pInputText id="firstName" formControlName="firstName" />
+<small class="error-text">{{ validationMessage('firstName') }}</small>
+</div>
+<div class="field">
+<label for="lastName">Last name *</label>
+<input pInputText id="lastName" formControlName="lastName" />
+<small class="error-text">{{ validationMessage('lastName') }}</small>
+</div>
+<div class="field">
+<label for="department">Department *</label>
+<p-select inputId="department" [options]="departments" optionLabel="name" optionValue="name" formControlName="department" placeholder="Choose department" />
+<small class="error-text">{{ validationMessage('department') }}</small>
+</div>
+<div class="field">
+<label for="jobTitle">Job title *</label>
+<input pInputText id="jobTitle" formControlName="jobTitle" />
+<small class="error-text">{{ validationMessage('jobTitle') }}</small>
+</div>
+<div class="field">
+<label for="country">Country *</label>
+<p-select inputId="country" [options]="countries" formControlName="country" placeholder="Choose country" />
+<small class="error-text">{{ validationMessage('country') }}</small>
+</div>
+<div class="field">
+<label for="location">Location *</label>
+<input pInputText id="location" formControlName="location" />
+<small class="error-text">{{ validationMessage('location') }}</small>
+</div>
+<div class="field">
+<label for="hireDate">Hire date *</label>
+<input pInputText id="hireDate" type="date" formControlName="hireDate" />
+<small class="error-text">{{ validationMessage('hireDate') }}</small>
+</div>
+<div class="field">
+<label for="status">Employment status *</label>
+<p-select inputId="status" [options]="statusOptions" optionLabel="label" optionValue="value" formControlName="status" />
+<small class="error-text">{{ validationMessage('status') }}</small>
+</div>
+</div>
+</p-card>
+<p-card header="Annual compensation" class="salary-card">
+<div class="form-grid">
+<div class="field">
+<label for="currency">Currency *</label>
+<input pInputText id="currency" maxlength="3" formControlName="currency" />
+<small class="error-text">{{ validationMessage('currency') }}</small>
+</div>
+<div class="field">
+<label for="baseSalary">Base salary *</label>
+<input pInputText id="baseSalary" type="number" min="0" formControlName="baseSalary" />
+<small class="error-text">{{ validationMessage('baseSalary') }}</small>
+</div>
+<div class="field">
+<label for="bonus">Annual bonus *</label>
+<input pInputText id="bonus" type="number" min="0" formControlName="bonus" />
+<small class="error-text">{{ validationMessage('bonus') }}</small>
+</div>
+<div class="field full">
+<label for="salaryChangeReason">Salary change reason</label>
+<input pInputText id="salaryChangeReason" formControlName="salaryChangeReason" placeholder="Optional note retained in salary history" />
+</div>
+</div>
+</p-card>
+<div class="form-actions">
+<a pButton routerLink="/employees" label="Cancel" severity="secondary" [text]="true">
+</a>
+<button pButton type="submit" label="{{ editing ? 'Save changes' : 'Create employee' }}" icon="pi pi-check" [disabled]="saving()">
+</button>
+</div>
+</form> }

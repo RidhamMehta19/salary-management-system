@@ -1,0 +1,114 @@
+@if (departmentError()) { <p-message severity="warn" [text]="departmentError()!" /> }
+    <header class="page-header">
+<div>
+<p class="eyebrow">People directory</p>
+<h1>Employees</h1>
+<p class="subtitle">Search, filter, and maintain the organisation's salary records.</p>
+</div>
+<a pButton routerLink="/employees/new" label="Add employee" icon="pi pi-plus">
+</a>
+</header>
+    <p-card>
+<div class="filters">
+<div class="search-field">
+<label for="employee-search">Search</label>
+<input pInputText id="employee-search" [(ngModel)]="search" (keyup.enter)="applyFilters()" placeholder="Name or employee ID" />
+</div>
+<div>
+<label for="department-filter">Department</label>
+<p-select
+  id="department-filter"
+  [options]="departmentOptions"
+  optionLabel="name"
+  optionValue="name"
+  [(ngModel)]="department"
+  placeholder="All departments"
+  [showClear]="true"
+  (onChange)="applyFilters()"
+/>
+</div>
+<div>
+<label for="country-filter">Country</label>
+<p-select id="country-filter" [options]="countries" [(ngModel)]="country" placeholder="All countries" [showClear]="true" (onChange)="applyFilters()" />
+</div>
+<div>
+<label for="status-filter">Status</label>
+<p-select
+  id="status-filter"
+  [options]="statusOptions"
+  optionLabel="label"
+  optionValue="value"
+  [(ngModel)]="status"
+  placeholder="All statuses"
+  [showClear]="true"
+  (onChange)="applyFilters()"
+/>
+</div>
+<div>
+<label for="sort-filter">Sort</label>
+<p-select id="sort-filter" [options]="sortOptions" optionLabel="label" optionValue="value" [(ngModel)]="sort" (onChange)="applyFilters()" />
+</div>
+<button pButton severity="secondary" [text]="true" label="Clear" icon="pi pi-filter-slash" (click)="clearFilters()">
+</button>
+</div>
+</p-card>
+    <section class="results-card">
+<div class="results-heading">
+<div>
+<h2>Employee records</h2>
+<span>{{ page()?.totalElements ?? 0 | number }} records</span>
+</div>@if (loading()) { <p-progressSpinner ariaLabel="Loading employees" [style]="{width:'24px',height:'24px'}" /> }</div>
+<div class="results-body">
+      @if (error()) { <p-message severity="error" [text]="error()!" /> } @else if (!loading() && page()?.content?.length === 0) { <div class="empty">
+<span>⌕</span>
+<h3>No employees found</h3>
+<p>Try broadening your search or clearing a filter.</p>
+</div> } @else { <div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Employee</th>
+<th>Department</th>
+<th>Location</th>
+<th>Status</th>
+<th>Base salary</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>@for (employee of page()?.content ?? []; track employee.id) { <tr>
+<td>
+<a class="employee-link" [routerLink]="['/employees', employee.id]">
+<span class="avatar">{{ initials(employee) }}</span>
+<span>
+<strong>{{ employee.firstName }} {{ employee.lastName }}</strong>
+<small>{{ employee.employeeNumber }} · {{ employee.email }}</small>
+</span>
+</a>
+</td>
+<td>{{ employee.department }}<small class="muted-block">{{ employee.jobTitle }}</small>
+</td>
+<td>{{ employee.location }}<small class="muted-block">{{ employee.country }}</small>
+</td>
+<td>
+<p-tag [value]="statusLabel(employee.status)" [severity]="statusSeverity(employee.status)" />
+</td>
+<td>
+<strong>{{ employee.currency }} {{ employee.baseSalary | number:'1.0-0' }}</strong>
+<small class="muted-block">{{ employee.currency }} {{ employee.totalCompensation | number:'1.0-0' }} total</small>
+</td>
+<td>
+<a pButton [routerLink]="['/employees', employee.id]" icon="pi pi-eye" [text]="true" [rounded]="true" aria-label="View employee details">
+</a>
+</td>
+</tr> }</tbody>
+</table>
+</div>
+<p-paginator
+  [rows]="size"
+  [first]="(page()?.page ?? 0) * size"
+  [totalRecords]="page()?.totalElements ?? 0"
+  [rowsPerPageOptions]="[10,20,50]"
+  (onPageChange)="pageChanged($event)"
+/> }
+    </div>
+</section>

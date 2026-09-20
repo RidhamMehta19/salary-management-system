@@ -18,15 +18,27 @@ export interface Employee {
   totalCompensation: number;
   createdAt: string;
   updatedAt: string;
+  version: number;
 }
 
 export interface EmployeeRequest extends Omit<Employee, 'id' | 'totalCompensation' | 'createdAt' | 'updatedAt'> {
   salaryChangeReason?: string;
 }
 
+// Numbers keep this scope simple; payroll-grade systems should use decimal strings to avoid IEEE-754 rounding.
+
 export interface PageResponse<T> { content: T[]; page: number; size: number; totalElements: number; totalPages: number; }
 export interface Department { id: string; name: string; }
-export interface SalaryHistory { id: string; currency: string; baseSalary: number; bonus: number; totalCompensation: number; effectiveDate: string; changeReason: string; recordedAt: string; }
+export interface SalaryHistory {
+  id: string;
+  currency: string;
+  baseSalary: number;
+  bonus: number;
+  totalCompensation: number;
+  effectiveDate: string;
+  changeReason: string;
+  recordedAt: string;
+}
 export interface CurrencySummary { currency: string; employeeCount: number; totalCompensation: number; averageBaseSalary: number; }
 export interface DashboardSummary { activeEmployees: number; totalEmployees: number; compensationByCurrency: CurrencySummary[]; }
 export interface CompensationBreakdown { label: string; currency: string; employeeCount: number; totalCompensation: number; averageBaseSalary: number; }

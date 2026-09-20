@@ -1,0 +1,117 @@
+@if (loading()) { <div class="loading-panel">
+<p-progressSpinner ariaLabel="Loading employee" />
+<span>Loading employee record…</span>
+</div> }
+    @else if (error()) { <p-message severity="error" [text]="error()!" />
+<a pButton routerLink="/employees" label="Back to employees" class="back-button">
+</a> }
+    @else if (employee(); as person) {
+      <header class="page-header">
+<div>
+<a class="back-link" routerLink="/employees">← Back to employees</a>
+<div class="person-heading">
+<span class="large-avatar">{{ initials(person) }}</span>
+<div>
+<p class="eyebrow">Employee profile</p>
+<h1>{{ person.firstName }} {{ person.lastName }}</h1>
+<p class="subtitle">{{ person.jobTitle }} · {{ person.employeeNumber }}</p>
+</div>
+</div>
+</div>
+<div class="header-actions">
+<a pButton [routerLink]="['/employees', person.id, 'edit']" label="Edit record" icon="pi pi-pencil" severity="secondary">
+</a>
+<button
+  pButton
+  [label]="person.status === 'INACTIVE' ? 'Reactivate' : 'Deactivate'"
+  [icon]="person.status === 'INACTIVE' ? 'pi pi-check' : 'pi pi-ban'"
+  [severity]="person.status === 'INACTIVE' ? 'success' : 'danger'"
+  [disabled]="statusSaving()"
+  (click)="changeStatus(person)"
+>
+</button>
+</div>
+</header>
+      <section class="profile-grid">
+<p-card header="Employee information">
+<dl>
+<div>
+<dt>Work email</dt>
+<dd>{{ person.email }}</dd>
+</div>
+<div>
+<dt>Department</dt>
+<dd>{{ person.department }}</dd>
+</div>
+<div>
+<dt>Location</dt>
+<dd>{{ person.location }}, {{ person.country }}</dd>
+</div>
+<div>
+<dt>Hire date</dt>
+<dd>{{ person.hireDate | date:'mediumDate' }}</dd>
+</div>
+<div>
+<dt>Employment status</dt>
+<dd>
+<p-tag [value]="statusLabel(person.status)" [severity]="statusSeverity(person.status)" />
+</dd>
+</div>
+<div>
+<dt>Last updated</dt>
+<dd>{{ person.updatedAt | date:'medium' }}</dd>
+</div>
+</dl>
+</p-card>
+<p-card header="Current compensation">
+<div class="compensation-total">
+<span>Total compensation</span>
+<strong>{{ person.currency }} {{ person.totalCompensation | number:'1.0-0' }}</strong>
+<small>Annual · {{ person.currency }}</small>
+</div>
+<div class="comp-row">
+<span>Base salary</span>
+<strong>{{ person.currency }} {{ person.baseSalary | number:'1.0-0' }}</strong>
+</div>
+<div class="comp-row">
+<span>Annual bonus</span>
+<strong>{{ person.currency }} {{ person.bonus | number:'1.0-0' }}</strong>
+</div>
+</p-card>
+</section>
+      <section class="history-card">
+<div class="section-heading">
+<div>
+<h2>Salary history</h2>
+<p>Compensation snapshots are retained whenever salary changes.</p>
+</div>
+</div>
+<p-table [value]="history()" [tableStyle]="{'min-width':'45rem'}">
+<ng-template #header>
+<tr>
+<th>Effective date</th>
+<th>Base salary</th>
+<th>Bonus</th>
+<th>Total</th>
+<th>Reason</th>
+</tr>
+</ng-template>
+<ng-template #body let-record>
+<tr>
+<td>{{ record.effectiveDate | date:'mediumDate' }}</td>
+<td>{{ record.currency }} {{ record.baseSalary | number:'1.0-0' }}</td>
+<td>{{ record.currency }} {{ record.bonus | number:'1.0-0' }}</td>
+<td>
+<strong>{{ record.currency }} {{ record.totalCompensation | number:'1.0-0' }}</strong>
+</td>
+<td>{{ record.changeReason }}</td>
+</tr>
+</ng-template>
+<ng-template #emptymessage>
+<tr>
+<td colspan="5">No salary history available.</td>
+</tr>
+</ng-template>
+</p-table>
+</section>
+    }

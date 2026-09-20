@@ -41,4 +41,17 @@ describe('EmployeesComponent', () => {
     expect(component.initials(employee)).toBe('AP');
     expect(component.statusLabel('ON_LEAVE')).toBe('On leave');
   });
+
+  it('shows a notice when departments cannot be loaded', () => {
+    component.ngOnInit();
+    http.expectOne(call => call.url.endsWith('/departments')).flush('failed', {
+      status: 503,
+      statusText: 'Unavailable',
+    });
+    http.expectOne(call => call.url.endsWith('/employees')).flush({
+      content: [], page: 0, size: 20, totalElements: 0, totalPages: 0,
+    });
+
+    expect(component.error()).toBe('Departments could not be loaded; employee records are still available.');
+  });
 });

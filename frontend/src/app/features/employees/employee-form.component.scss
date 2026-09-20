@@ -1,0 +1,85 @@
+.page-header {
+  margin-bottom:1.5rem
+}
+.back-link {
+  color:#486581;
+  display:block;
+  font-size:.8rem;
+  margin-bottom:1.3rem;
+  text-decoration:none
+}
+.eyebrow {
+  color:#2f855a;
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:.1em;
+  margin:0 0 .35rem;
+  text-transform:uppercase
+}
+h1 {
+  color:#102a43;
+  font-size:2rem;
+  letter-spacing:-.04em;
+  margin:0
+}
+.subtitle {
+  color:#627d98;
+  margin:.4rem 0 0
+}
+.form-grid {
+  display:grid;
+  gap:1rem;
+  grid-template-columns:1fr 1fr
+}
+.field {
+  display:flex;
+  flex-direction:column
+}
+.field.full {
+  grid-column:1/-1
+}
+.field label {
+  color:#486581;
+  font-size:.75rem;
+  font-weight:700;
+  margin-bottom:.4rem
+}
+.field input,.field p-select {
+  width:100%
+}
+.field small {
+  color:#829ab1;
+  font-size:.7rem;
+  margin-top:.35rem
+}
+.field .error-text {
+  color:#c53030;
+  min-height:1rem
+}
+.salary-card {
+  display:block;
+  margin-top:1.25rem
+}
+.form-actions {
+  display:flex;
+  gap:.6rem;
+  justify-content:flex-end;
+  margin-top:1.25rem
+}
+.loading-panel {
+  align-items:center;
+  background:#fff;
+  border-radius:12px;
+  display:flex;
+  justify-content:center;
+  min-height:250px
+}
+@media(max-width:720px) {
+  .form-grid {
+  grid-template-columns:1fr
+}
+.field.full {
+  grid-column:auto
+}
+}
+

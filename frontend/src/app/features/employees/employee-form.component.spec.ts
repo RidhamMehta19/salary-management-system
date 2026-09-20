@@ -51,4 +51,47 @@ describe('EmployeeFormComponent', () => {
     expect(errorMessage(new HttpErrorResponse({ status: 500 }))).toBe('Something went wrong while saving the employee. Please try again.');
     expect(errorMessage(new HttpErrorResponse({ status: 0 }))).toBe('Unable to reach the server. Please try again.');
   });
+
+  it('creates an employee successfully', () => {
+    fillForm();
+    component.save();
+
+    const request = http.expectOne(call => call.url.endsWith('/employees'));
+    expect(request.request.method).toBe('POST');
+    request.flush({ id: 'new-id', firstName: 'Ada', lastName: 'Lovelace' });
+    expect(component.saving()).toBeTrue();
+  });
+
+  it('updates an employee with its current version', () => {
+    component.editing = true;
+    component.employeeId = 'employee-id';
+    fillForm();
+    component.form.controls.version.setValue(7);
+    component.save();
+
+    const request = http.expectOne(call => call.url.endsWith('/employees/employee-id'));
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.body.version).toBe(7);
+    request.flush({ id: 'employee-id', firstName: 'Ada', lastName: 'Lovelace' });
+  });
+
+  it('shows a conflict message when saving a stale employee', () => {
+    fillForm();
+    component.save();
+    http.expectOne(call => call.url.endsWith('/employees')).flush(
+      { message: 'The employee was changed by another request; reload and try again' },
+      { status: 409, statusText: 'Conflict' },
+    );
+
+    expect(component.error()).toBe('This record is stale. Reload the employee before saving again.');
+    expect(component.saving()).toBeFalse();
+  });
+
+  function fillForm(): void {
+    component.form.patchValue({
+      employeeNumber: 'EMP-1', firstName: 'Ada', lastName: 'Lovelace', email: 'ada@example.org',
+      department: 'Engineering', jobTitle: 'Engineer', country: 'United States', location: 'New York',
+      status: 'ACTIVE', hireDate: '2020-01-01', currency: 'USD', baseSalary: 90000, bonus: 5000,
+    });
+  }
 });

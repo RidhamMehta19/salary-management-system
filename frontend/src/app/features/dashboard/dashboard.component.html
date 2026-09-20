@@ -1,0 +1,158 @@
+<header class="page-header">
+  <div>
+    <p class="eyebrow">Overview</p>
+    <h1>Good morning, HR team</h1>
+    <p class="subtitle">A clear view of your organisation's current compensation picture.</p>
+  </div>
+  <a pButton routerLink="/employees" label="View employees" icon="pi pi-arrow-right" iconPos="right"></a>
+</header>
+
+@if (loading()) {
+  <div class="loading-panel" aria-live="polite" aria-label="Loading dashboard">
+    <div class="skeleton-heading"></div>
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row short"></div>
+  </div>
+} @else if (error()) {
+  <div class="state-panel error-panel" role="alert">
+    <p class="state-kicker">Something went wrong</p>
+    <p>{{ error() }}</p>
+    <button pButton class="retry-button" label="Try again" (click)="load()"></button>
+  </div>
+} @else if (summary(); as data) {
+  <section class="metric-grid" aria-label="Key metrics">
+    <p-card [style.--i]="0">
+      <div class="metric">
+        <span class="metric-icon mint" aria-hidden="true">◉</span>
+        <div>
+          <span class="metric-label">Active employees</span>
+          <strong class="tabular-nums">{{ animatedMetrics().activeEmployees | number }}</strong>
+          <small>of {{ data.totalEmployees | number }} total records</small>
+        </div>
+      </div>
+    </p-card>
+    <p-card [style.--i]="1">
+      <div class="metric">
+        <span class="metric-icon blue" aria-hidden="true">$</span>
+        <div>
+          <span class="metric-label">Total compensation</span>
+          <div class="metric-list">
+            @for (item of data.compensationByCurrency; track item.currency) {
+              <div class="metric-row">
+                <span>{{ item.currency }}</span>
+                <strong class="tabular-nums">{{ (animatedMetrics().totalByCurrency[item.currency] ?? item.totalCompensation) | number:'1.0-0' }}</strong>
+              </div>
+            }
+          </div>
+          <small>across stored currencies</small>
+        </div>
+      </div>
+    </p-card>
+    <p-card [style.--i]="2">
+      <div class="metric">
+        <span class="metric-icon orange" aria-hidden="true">↗</span>
+        <div>
+          <span class="metric-label">Average base salary</span>
+          <div class="metric-list">
+            @for (item of data.compensationByCurrency; track item.currency) {
+              <div class="metric-row">
+                <span>{{ item.currency }}</span>
+                <strong class="tabular-nums">{{ (animatedMetrics().averageByCurrency[item.currency] ?? item.averageBaseSalary) | number:'1.0-0' }}</strong>
+              </div>
+            }
+          </div>
+          <small>active workforce</small>
+        </div>
+      </div>
+    </p-card>
+    <p-card [style.--i]="3">
+      <div class="metric">
+        <span class="metric-icon purple" aria-hidden="true">◈</span>
+        <div>
+          <span class="metric-label">Currencies</span>
+          <strong class="tabular-nums">{{ animatedMetrics().currencyCount }}</strong>
+          <small>local salary ledgers</small>
+        </div>
+      </div>
+    </p-card>
+  </section>
+
+  <section class="insight-grid">
+    <p-card header="Compensation by department" [style.--i]="4">
+      <p class="card-note">Grouped by local currency; no exchange-rate conversion is applied.</p>
+      <div class="bars">
+        @for (item of topDepartments; track item.label + item.currency; let i = $index) {
+          <div class="bar-row" [style.--i]="i">
+            <div class="bar-label">
+              <span>{{ item.label }}</span>
+              <small>{{ item.employeeCount }} people · {{ item.currency }}</small>
+            </div>
+            <div class="bar-track">
+              <span [style.--bar-scale]="barWidth(item.totalCompensation, maxDepartmentCompensation) / 100"></span>
+            </div>
+            <strong>{{ item.totalCompensation | number:'1.0-0' }}</strong>
+          </div>
+        } @empty {
+          <p class="empty-copy">No department data yet.</p>
+        }
+      </div>
+    </p-card>
+    <p-card header="Salary distribution by currency" [style.--i]="5">
+      <p class="card-note">Each currency has its own demo-data salary bands. Amounts are not compared or converted across currencies.</p>
+      <div class="distribution">
+        @for (item of distribution; track item.currency + item.band; let i = $index) {
+          <div class="distribution-row" [style.--i]="i">
+            <div>
+              <strong>{{ item.band }} {{ item.currency }}</strong>
+              <small>Stored {{ item.currency }} salary</small>
+              <div class="distribution-track">
+                <span [style.--bar-scale]="barWidth(item.employeeCount, maxDistributionEmployees) / 100"></span>
+              </div>
+            </div>
+            <span>{{ item.employeeCount }}</span>
+          </div>
+        } @empty {
+          <p class="empty-copy">No salary data yet.</p>
+        }
+      </div>
+    </p-card>
+  </section>
+
+  <section class="insight-grid lower-grid">
+    <p-card header="Compensation by country" [style.--i]="6">
+      <div class="country-list">
+        @for (item of countries; track item.label + item.currency) {
+          <div class="country-row">
+            <div class="country-name">
+              <span class="country-dot" aria-hidden="true"></span>
+              <span>{{ item.label }}</span>
+              <small>{{ item.currency }}</small>
+            </div>
+            <div class="country-value">
+              <strong>{{ item.employeeCount }}</strong>
+              <small>{{ item.totalCompensation | number:'1.0-0' }} total</small>
+            </div>
+          </div>
+        } @empty {
+          <p class="empty-copy">No country data yet.</p>
+        }
+      </div>
+    </p-card>
+    <p-card header="Currency snapshot" [style.--i]="7">
+      <div class="country-list">
+        @for (item of data.compensationByCurrency; track item.currency) {
+          <div class="country-row">
+            <div class="country-name">
+              <span class="currency-badge">{{ item.currency }}</span>
+              <span>{{ item.currency }} ledger</span>
+            </div>
+            <div class="country-value">
+              <strong>{{ item.averageBaseSalary | number:'1.0-0' }}</strong>
+              <small>{{ item.employeeCount }} active employees</small>
+            </div>
+          </div>
+        }
+      </div>
+    </p-card>
+  </section>
+}
