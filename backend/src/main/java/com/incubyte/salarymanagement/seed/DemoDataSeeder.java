@@ -10,11 +10,14 @@ import com.incubyte.salarymanagement.salary.SalaryHistory;
 import com.incubyte.salarymanagement.salary.SalaryHistoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.annotation.PreDestroy;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,13 +30,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Component
 @Profile("seed")
 @Order(2)
-class DemoDataSeeder implements CommandLineRunner {
+class DemoDataSeeder {
     private static final Logger log = LoggerFactory.getLogger(DemoDataSeeder.class);
     private static final int EMPLOYEE_COUNT = 10_000;
+    private static final int CHUNK_SIZE = 500;
     private static final Instant SEEDED_AT = Instant.parse("2026-01-01T00:00:00Z");
     private static final String[] FIRST_NAMES = {"Aarav", "Aisha", "Amelia", "Arjun", "Ava", "Benjamin", "Charlotte", "Daniel", "Emma", "Ethan", "Fatima", "Harper", "Ishaan", "James", "Layla", "Liam", "Maya", "Noah", "Olivia", "Priya", "Riya", "Sophia", "Vihaan", "William", "Zara"};
     private static final String[] LAST_NAMES = {"Anderson", "Brown", "Chen", "Davis", "Garcia", "Gupta", "Harris", "Johnson", "Khan", "Lee", "Martin", "Mehta", "Miller", "Patel", "Robinson", "Shah", "Singh", "Smith", "Taylor", "Thomas", "Walker", "Wilson", "Wong", "Young", "Zhang"};
@@ -48,37 +54,72 @@ class DemoDataSeeder implements CommandLineRunner {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final SalaryHistoryRepository salaryHistoryRepository;
+    private final TransactionTemplate transactionTemplate;
+    private final ExecutorService seedExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread thread = new Thread(r, "demo-data-seeder");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     DemoDataSeeder(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository,
-                   SalaryHistoryRepository salaryHistoryRepository) {
+                   SalaryHistoryRepository salaryHistoryRepository, PlatformTransactionManager transactionManager) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.salaryHistoryRepository = salaryHistoryRepository;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-    @Override
-    @Transactional
-    public void run(String... args) {
-        if (employeeRepository.count() > 0) {
-            log.info("Seed profile active; employee data already exists, skipping demo seed");
-            return;
-        }
-        Map<String, Department> departments = departmentRepository.findAll().stream()
-                .collect(Collectors.toMap(Department::getName, department -> department));
-        Random random = new Random(20260919L);
-        for (int start = 0; start < EMPLOYEE_COUNT; start += 250) {
-            List<Employee> employees = new ArrayList<>(250);
-            for (int index = start; index < Math.min(start + 250, EMPLOYEE_COUNT); index++) {
-                employees.add(createEmployee(index, random, departments));
+    @EventListener(ApplicationReadyEvent.class)
+    void seedInBackground() {
+        seedExecutor.submit(this::seed);
+    }
+
+    private void seed() {
+            log.info("Starting deterministic demo data seed");
+        try {
+            long existingCount = employeeRepository.count();
+            boolean isPartialSeed = existingCount > 0
+                    && employeeRepository.existsById(deterministicId("employee-0"));
+            if (existingCount >= EMPLOYEE_COUNT || (existingCount > 0 && !isPartialSeed)) {
+                log.info("Seed profile active; employee data already exists, skipping demo seed");
+                return;
             }
-            List<Employee> savedEmployees = employeeRepository.saveAll(employees);
-            List<SalaryHistory> history = savedEmployees.stream().map(employee -> new SalaryHistory(
-                    deterministicId("salary-history-" + employee.getEmployeeNumber()), employee,
-                    employee.getCurrency(), employee.getBaseSalary(), employee.getBonus(), employee.getHireDate(),
-                    "Initial compensation", SEEDED_AT)).toList();
-            salaryHistoryRepository.saveAll(history);
+            Map<String, Department> departments = departmentRepository.findAll().stream()
+                    .collect(Collectors.toMap(Department::getName, department -> department));
+            Random random = new Random(20260919L);
+            int start = (int) existingCount;
+            for (int index = 0; index < start; index++) {
+                createEmployee(index, random, departments);
+            }
+            for (; start < EMPLOYEE_COUNT; start += CHUNK_SIZE) {
+                int chunkStart = start;
+                int chunkEnd = Math.min(start + CHUNK_SIZE, EMPLOYEE_COUNT);
+                transactionTemplate.executeWithoutResult(status -> seedChunk(chunkStart, chunkEnd, random, departments));
+                log.info("Seeded {}/{} employees", chunkEnd, EMPLOYEE_COUNT);
+            }
+        } catch (Exception exception) {
+            log.error("Demo data seed failed", exception);
+        } finally {
+            log.info("Finished deterministic demo data seed");
         }
-        log.info("Seeded {} deterministic employee records", EMPLOYEE_COUNT);
+    }
+
+    private void seedChunk(int start, int end, Random random, Map<String, Department> departments) {
+        List<Employee> employees = new ArrayList<>(end - start);
+        for (int index = start; index < end; index++) {
+            employees.add(createEmployee(index, random, departments));
+        }
+        List<Employee> savedEmployees = employeeRepository.saveAll(employees);
+        List<SalaryHistory> history = savedEmployees.stream().map(employee -> new SalaryHistory(
+                deterministicId("salary-history-" + employee.getEmployeeNumber()), employee,
+                employee.getCurrency(), employee.getBaseSalary(), employee.getBonus(), employee.getHireDate(),
+                "Initial compensation", SEEDED_AT)).toList();
+        salaryHistoryRepository.saveAll(history);
+    }
+
+    @PreDestroy
+    void shutdown() {
+        seedExecutor.shutdown();
     }
 
     private Employee createEmployee(int index, Random random, Map<String, Department> departments) {

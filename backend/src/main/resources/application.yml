@@ -5,9 +5,16 @@ spring:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/salary_management}
     username: ${DATABASE_USERNAME:salary_user}
     password: ${DATABASE_PASSWORD:salary_password}
+    hikari:
+      data-source-properties:
+        reWriteBatchedInserts: true
   jpa:
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate.jdbc.batch_size: 500
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
     open-in-view: false
   flyway:
     enabled: true
