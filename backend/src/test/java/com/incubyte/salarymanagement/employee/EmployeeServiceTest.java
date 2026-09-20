@@ -19,6 +19,9 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,11 +42,13 @@ class EmployeeServiceTest {
     @Captor private ArgumentCaptor<SalaryHistory> historyCaptor;
     private EmployeeService employeeService;
     private Department engineering;
+    private Clock clock;
 
     @BeforeEach
     void setUp() {
         employeeService = new EmployeeService(employeeRepository, departmentRepository, salaryHistoryRepository);
         engineering = new Department("Engineering");
+        clock = Clock.fixed(Instant.parse("2024-06-15T12:00:00Z"), ZoneOffset.UTC);
     }
 
     @Test
@@ -74,6 +79,42 @@ class EmployeeServiceTest {
         verify(salaryHistoryRepository).save(historyCaptor.capture());
         assertThat(historyCaptor.getValue().getBaseSalary()).isEqualByComparingTo("97500");
         assertThat(historyCaptor.getValue().getBonus()).isEqualByComparingTo("7500");
+    }
+
+    @Test
+    void recordsCurrencyOnlyCompensationChangeWithClockDate() {
+        UUID id = UUID.randomUUID();
+        Employee employee = employee("EMP-00001", "original@example.org", new BigDecimal("90000"), new BigDecimal("5000"));
+        when(employeeRepository.findById(id)).thenReturn(Optional.of(employee));
+        when(departmentRepository.findByNameIgnoreCase("Engineering")).thenReturn(Optional.of(engineering));
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        employeeService = new EmployeeService(employeeRepository, departmentRepository, salaryHistoryRepository, clock);
+
+        EmployeeRequest currencyChange = new EmployeeRequest("EMP-00001", "Ada", "Lovelace", "original@example.org",
+                "Engineering", "Software Engineer", "United States", "New York", EmploymentStatus.ACTIVE,
+                LocalDate.of(2020, 1, 10), "EUR", new BigDecimal("90000"), new BigDecimal("5000"), "Currency change");
+        employeeService.update(id, currencyChange);
+
+        verify(salaryHistoryRepository).save(historyCaptor.capture());
+        assertThat(historyCaptor.getValue().getCurrency()).isEqualTo("EUR");
+        assertThat(historyCaptor.getValue().getEffectiveDate()).isEqualTo(LocalDate.of(2024, 6, 15));
+    }
+
+    @Test
+    void recordsMultipleSameDayChangesWithTheSameEffectiveDate() {
+        UUID id = UUID.randomUUID();
+        Employee employee = employee("EMP-00001", "original@example.org", new BigDecimal("90000"), new BigDecimal("5000"));
+        when(employeeRepository.findById(id)).thenReturn(Optional.of(employee));
+        when(departmentRepository.findByNameIgnoreCase("Engineering")).thenReturn(Optional.of(engineering));
+        when(employeeRepository.save(any(Employee.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        employeeService = new EmployeeService(employeeRepository, departmentRepository, salaryHistoryRepository, clock);
+
+        employeeService.update(id, request("EMP-00001", "original@example.org", new BigDecimal("91000"), new BigDecimal("5000")));
+        employeeService.update(id, request("EMP-00001", "original@example.org", new BigDecimal("92000"), new BigDecimal("5000")));
+
+        verify(salaryHistoryRepository, org.mockito.Mockito.times(2)).save(historyCaptor.capture());
+        assertThat(historyCaptor.getAllValues()).extracting(SalaryHistory::getEffectiveDate)
+                .containsOnly(LocalDate.of(2024, 6, 15));
     }
 
     @Test
