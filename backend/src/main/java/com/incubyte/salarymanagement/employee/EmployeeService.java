@@ -107,6 +107,7 @@ public class EmployeeService {
                 department, normalize(request.jobTitle()), normalize(request.country()), normalize(request.location()),
                 request.status(), request.hireDate(), request.currency(), request.baseSalary(), request.bonus());
         Employee saved = employeeRepository.save(employee);
+        employeeRepository.flush();
         if (compensationChanged) {
             salaryHistoryRepository.save(new SalaryHistory(saved, saved.getCurrency(), saved.getBaseSalary(), saved.getBonus(),
                     // Salary changes take effect on the UTC calendar date when the update is committed.

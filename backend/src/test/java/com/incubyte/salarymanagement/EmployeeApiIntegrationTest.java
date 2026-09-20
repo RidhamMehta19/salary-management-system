@@ -144,14 +144,23 @@ class EmployeeApiIntegrationTest {
                         .content(employeeRequest("EMP-STALE", "stale@example.org")))
                 .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
         String id = response.replaceAll(".*\\\"id\\\":\\\"([^\\\"]+).*", "$1");
-        String update = employeeRequest("EMP-STALE", "stale@example.org").replace("\"version\":", "\"version\":");
+        String staleUpdate = employeeRequest("EMP-STALE", "stale@example.org")
+                .replace("\"bonus\":15000}", "\"bonus\":15000,\"version\":0}");
+        String currentUpdate = employeeRequest("EMP-STALE", "stale@example.org")
+                .replace("Grace", "Ada")
+                .replace("\"bonus\":15000}", "\"bonus\":15000,\"version\":0}");
 
         mockMvc.perform(put("/api/employees/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                        .content(update.replace("}", ",\"version\":0}")))
-                .andExpect(status().isOk());
+                        .content(currentUpdate))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.version").value(1));
         mockMvc.perform(put("/api/employees/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                        .content(update.replace("}", ",\"version\":0}")))
+                        .content(staleUpdate))
                 .andExpect(status().isConflict());
+        mockMvc.perform(put("/api/employees/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                        .content(currentUpdate.replace("\"version\":0", "\"version\":1").replace("Ada", "Katherine")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.version").value(2));
     }
 
     @Test
