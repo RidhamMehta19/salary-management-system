@@ -4,15 +4,20 @@
 
 # Java / Maven
 backend/target/
+target/
 *.class
 
 # Node / Angular
+node_modules/
 frontend/node_modules/
+dist/
 frontend/dist/
+.angular/
 frontend/coverage/
 
 # Environment and local data
 .env
+.env.*
 .env.local
 *.log
 postgres-data/

@@ -54,7 +54,9 @@ npm --prefix frontend test -- --watch=false --browsers=ChromeHeadless
 npm --prefix frontend run build
 ```
 
-The backend integration test uses H2 to verify Flyway and API behavior without requiring a running database. Production persistence remains PostgreSQL.
+The backend integration test uses Testcontainers PostgreSQL and the same Flyway migrations as production. Docker must be available; the test fails clearly when it is not.
+
+Updates require the response `version` in the PUT body; stale versions return HTTP 409. Emails and employee numbers are canonicalized before case-insensitive uniqueness checks. Supported currencies are USD, INR, GBP, EUR, CAD, and AUD. Search uses `pg_trgm` GIN indexes for the 1M-row path.
 
 ## API overview
 
@@ -74,6 +76,10 @@ The backend integration test uses H2 to verify Flyway and API behavior without r
 ## Deployment
 
 Build the backend with [backend/Dockerfile](backend/Dockerfile) and configure `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `CORS_ALLOWED_ORIGINS`, and `PORT`. The committed frontend config uses safe same-origin `/api`; local `npm start` proxies to `http://localhost:8080`, while deployment must replace the emitted `app-config.js` with the deployed API URL. Follow [deployment](docs/deployment.md) for exact steps.
+
+### Deployment prerequisites
+
+Authentication, authorization, and an audit identity are required before real salary data is used. These are intentionally not implemented in this assessment.
 
 ## Project structure
 

@@ -51,7 +51,7 @@ How it was tested: configuration and request-construction component tests run as
 
 ## Review and verification
 
-The assistant reviewed the generated code against the written requirements, kept DTO/entity boundaries, constrained sort fields, and used Maven tests plus a Flyway/H2 API integration test to verify backend behavior. A real schema mismatch (`CHAR(3)` versus Hibernate's `VARCHAR(3)`) was found by the integration test and corrected before proceeding. Frontend build/test claims are recorded only after their commands complete successfully in the local environment.
+The assistant reviewed the generated code against the written requirements, kept DTO/entity boundaries, constrained sort fields, and used backend unit tests plus the Testcontainers integration suite definition to verify backend behavior. The Docker-dependent integration and migration run was not available in the final environment. Frontend build/test claims are recorded only after their commands complete successfully in the local environment.
 
 Generated UI boilerplate was replaced with domain-specific pages, labels, empty/error states, multi-currency explanations, salary-history behavior, and runtime API configuration. The generated Angular starter title test was removed because it asserted placeholder content.
 

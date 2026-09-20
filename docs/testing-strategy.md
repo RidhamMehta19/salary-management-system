@@ -2,11 +2,13 @@
 
 ## What is tested
 
-- `EmployeeServiceTest` checks creation, initial salary history, compensation-change history, non-compensation edits, pagination metadata, and missing employee behavior.
+- `EmployeeServiceTest` checks creation, initial salary history, compensation and currency-only changes, same-day effective dates through an injected clock, non-compensation edits, pagination metadata, and missing employee behavior.
 - `DashboardServiceTest` checks active headcount and currency aggregate mapping.
 - `EmployeeControllerTest` checks validation and safe 404 responses.
-- `EmployeeApiIntegrationTest` starts the full Spring context against H2, runs Flyway, then verifies create, search/filter, status change, history retrieval, malformed/invalid input, 404, duplicate conflicts, and currency-specific salary bands.
-- Angular tests verify API query parameter construction, employee filter reset/pagination behavior, dashboard aggregate response handling, form validation, initials, status labels, and safe save-error messages.
+- `EmployeeApiIntegrationTest` starts the full Spring context against Testcontainers PostgreSQL, runs the production Flyway migrations, and verifies optimistic locking, case-insensitive DB uniqueness, deterministic pagination, invalid paging/sorting, unknown departments, date/currency validation, migration checks, create/search/filter, status change, history retrieval, malformed/invalid input, 404, duplicate conflicts, and currency-specific salary bands.
+
+Run with `mvn -f backend/pom.xml test` while Docker is available. Without Docker, Testcontainers fails clearly rather than silently changing database behavior.
+- Angular tests verify API query parameter construction, employee filter reset/pagination behavior, dashboard success/failure states, employee detail loading/status transitions/in-flight disabling, form create/update/conflict flows and validation, department-load failure, initials, status labels, and safe save-error messages.
 
 ## Why this level
 

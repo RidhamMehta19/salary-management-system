@@ -11,8 +11,8 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Angular/PrimeNG UI implementation completed and documented.
 - [x] PostgreSQL schema and migrations completed and documented.
 - [x] Deterministic 10,000-employee seed completed and documented.
-- [x] Unit and API integration tests completed and documented.
-- [x] Local Docker workflow verified: clean Compose startup, Flyway migration, deterministic 10,000-row seed, health endpoint, and API flow verified on 2026-09-20.
+- [x] Backend unit tests verified: 10 passing, 0 failing (2026-09-20); API integration tests remain Docker-dependent.
+- [ ] Local Docker workflow and seeded migration verification must be rerun after the remediation migrations.
 - [x] Frontend production build verified locally; deployment remains unverified.
 - [x] Final self-review completed.
 - [ ] Live deployment and demo video supplied by the applicant.
@@ -29,9 +29,9 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Deterministic seed profile design for 10,000 employees.
 - [x] Environment-driven CORS, database settings, profiles, and health endpoint configuration.
 - [x] Centralized validation, not-found, duplicate, and unexpected-error responses.
-- [x] Backend tests: service rules, pagination metadata, dashboard mapping, validation/error handling, Flyway startup, and API flow.
+- [x] Backend unit tests: service rules, clock-controlled salary history, pagination metadata, dashboard mapping, and validation/error handling; API integration coverage is implemented but Docker-dependent.
 - [x] Backend checkpoint committed as `139e975` and `12cac67`.
-- [x] Backend `mvn test` passing: 12 tests, 0 failures, 0 errors (verified 2026-09-20).
+- [ ] Backend Testcontainers suite: 0 passing, 1 error (`EmployeeApiIntegrationTest`; Docker environment rejected by Testcontainers).
 
 ## Current frontend stage
 
@@ -45,8 +45,8 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Employee detail page and salary-history table.
 - [x] Add/edit employee form with validation and salary-change reason.
 - [x] Deactivation confirmation and success/error feedback verification.
-- [x] Frontend unit tests for API service, filtering, dashboard response handling, form validation, and status behavior (6 specs).
-- [x] Frontend production build and ChromeHeadless test run: 8 specs passing (verified 2026-09-20).
+- [x] Frontend unit tests for API service, filtering, dashboard failure handling, employee detail status behavior, form create/update/conflict handling, department-load failure, and status behavior.
+- [x] Frontend production build and ChromeHeadless test run: 15 tests passing (verified 2026-09-20).
 
 ## Remaining implementation and review
 
@@ -55,9 +55,9 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Add root README with local setup, API overview, deployment placeholders, and submission checklist.
 - [x] Add final review documenting implemented scope, exclusions, limitations, technical debt, and interview discussion points.
 - [x] Review for dead code, hard-coded secrets, broken imports, unimplemented UI actions, and mismatched documentation.
-- [x] Run backend `mvn clean test` and `mvn clean verify`: 12 tests passing (verified 2026-09-20).
+- [ ] Run backend `mvn clean test` and `mvn clean verify` in a Docker-enabled environment.
 - [x] Run frontend `npm ci`, `npm test`, and production build.
-- [x] Verify Docker build and clean local PostgreSQL startup: migration, seed cardinality/uniqueness, health, and core API flow passed (verified 2026-09-20).
+- [ ] Verify Docker build and clean PostgreSQL startup after the remediation migrations.
 - [x] Create final incremental Git commits after each completed stage.
 - [ ] Applicant action: deploy the app, record the demo, and submit repository/live/demo URLs by email.
 

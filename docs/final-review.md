@@ -8,7 +8,7 @@
 - Server-side directory search/filter/sort/pagination suitable for 10,000 records.
 - Dashboard aggregates from persisted data, grouped by currency where conversion is unspecified.
 - Fully deterministic seeded dataset, Angular/PrimeNG responsive UI, loading/empty/error states, confirmation, and success feedback.
-- Backend unit/API integration tests and frontend ChromeHeadless tests (locally verified 2026-09-20).
+- Backend unit tests, Testcontainers PostgreSQL integration tests, and frontend ChromeHeadless tests (frontend verified 2026-09-20; backend integration requires Docker).
 - Docker, environment examples, deployment instructions, architecture/design/testing/AI artifacts, and incremental Git history.
 
 ## Intentionally excluded
@@ -22,6 +22,8 @@ Authentication and authorization, SSO, audit identity, payroll/tax/benefits, cur
 - No browser end-to-end test runs against a deployed provider; the API integration test and component/service tests cover the core behavior.
 - The directory currently has no debounced search-on-type; Enter or filter changes trigger a request.
 - Authentication, audit actor metadata, rate limiting, and production data retention policies are required before real salary data is used.
+- Employee updates use optimistic locking through a required `version` field and return 409 for stale writes. PostgreSQL case-insensitive uniqueness and domain checks are applied by new migrations.
+- The `pg_trgm` search indexes and Testcontainers verification require PostgreSQL/Docker; those checks were not runnable in the current environment.
 
 ## Future improvements
 
