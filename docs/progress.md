@@ -12,7 +12,7 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] PostgreSQL schema and migrations completed and documented.
 - [x] Deterministic 10,000-employee seed completed and documented.
 - [x] Backend unit tests verified: 10 passing, 0 failing (2026-09-20); API integration tests remain Docker-dependent.
-- [ ] Local Docker workflow and seeded migration verification must be rerun after the remediation migrations.
+- [x] Local Docker workflow and seeded migration verification passed (2026-09-20): Flyway V1–V3 succeeded, seed created 10,000 employees and 10,000 salary-history rows, and required indexes were present.
 - [x] Frontend production build verified locally; deployment remains unverified.
 - [x] Final self-review completed.
 - [ ] Live deployment and demo video supplied by the applicant.
@@ -57,7 +57,7 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Review for dead code, hard-coded secrets, broken imports, unimplemented UI actions, and mismatched documentation.
 - [ ] Run backend `mvn clean test` and `mvn clean verify` in a Docker-enabled environment.
 - [x] Run frontend `npm ci`, `npm test`, and production build.
-- [ ] Verify Docker build and clean PostgreSQL startup after the remediation migrations.
+- [x] Docker build and clean PostgreSQL startup verified after the remediation migrations (2026-09-20).
 - [x] Create final incremental Git commits after each completed stage.
 - [ ] Applicant action: deploy the app, record the demo, and submit repository/live/demo URLs by email.
 

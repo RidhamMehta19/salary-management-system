@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class EmployeeService {
     private final SalaryHistoryRepository salaryHistoryRepository;
     private final Clock clock;
 
+    @Autowired
     public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository,
                            SalaryHistoryRepository salaryHistoryRepository, Clock clock) {
         this.employeeRepository = employeeRepository;
