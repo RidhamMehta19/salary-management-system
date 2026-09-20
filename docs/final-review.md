@@ -23,7 +23,7 @@ Authentication and authorization, SSO, audit identity, payroll/tax/benefits, cur
 - The directory currently has no debounced search-on-type; Enter or filter changes trigger a request.
 - Authentication, audit actor metadata, rate limiting, and production data retention policies are required before real salary data is used.
 - Employee updates use optimistic locking through a required `version` field and return 409 for stale writes. PostgreSQL case-insensitive uniqueness and domain checks are applied by new migrations.
-- The `pg_trgm` search indexes and Testcontainers verification require PostgreSQL/Docker; those checks were not runnable in the current environment.
+- The `pg_trgm` search indexes require PostgreSQL/Docker; Testcontainers verification passed against Docker Desktop with Testcontainers 1.21.4 and PostgreSQL 16.
 
 ## Future improvements
 
