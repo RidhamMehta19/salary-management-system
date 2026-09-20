@@ -32,83 +32,19 @@ public interface DashboardRepository extends Repository<Employee, java.util.UUID
             """)
     List<CompensationBreakdownProjection> byCountry();
 
-    @Query("""
-            select e.currency as currency,
-              case when e.currency = 'INR' then
-                   case when e.baseSalary < 4100000 then 'Below 4.1M'
-                        when e.baseSalary < 6150000 then '4.1M–6.15M'
-                        when e.baseSalary < 8200000 then '6.15M–8.2M'
-                        when e.baseSalary < 12300000 then '8.2M–12.3M'
-                        else '12.3M+' end
-                   when e.currency = 'GBP' then
-                   case when e.baseSalary < 40000 then 'Below 40k'
-                        when e.baseSalary < 60000 then '40k–60k'
-                        when e.baseSalary < 80000 then '60k–80k'
-                        when e.baseSalary < 120000 then '80k–120k'
-                        else '120k+' end
-                   when e.currency = 'EUR' then
-                   case when e.baseSalary < 46000 then 'Below 46k'
-                        when e.baseSalary < 69000 then '46k–69k'
-                        when e.baseSalary < 92000 then '69k–92k'
-                        when e.baseSalary < 138000 then '92k–138k'
-                        else '138k+' end
-                   when e.currency = 'CAD' then
-                   case when e.baseSalary < 67500 then 'Below 67.5k'
-                        when e.baseSalary < 101250 then '67.5k–101.25k'
-                        when e.baseSalary < 135000 then '101.25k–135k'
-                        when e.baseSalary < 202500 then '135k–202.5k'
-                        else '202.5k+' end
-                   when e.currency = 'AUD' then
-                   case when e.baseSalary < 74000 then 'Below 74k'
-                        when e.baseSalary < 111000 then '74k–111k'
-                        when e.baseSalary < 148000 then '111k–148k'
-                        when e.baseSalary < 222000 then '148k–222k'
-                        else '222k+' end
-                   else case when e.baseSalary < 50000 then 'Below 50k'
-                        when e.baseSalary < 75000 then '50k–75k'
-                        when e.baseSalary < 100000 then '75k–100k'
-                        when e.baseSalary < 150000 then '100k–150k'
-                        else '150k+' end end as band,
-              count(e) as employeeCount
-            from Employee e where e.status = com.incubyte.salarymanagement.employee.EmploymentStatus.ACTIVE
-            group by e.currency,
-              case when e.currency = 'INR' then
-                   case when e.baseSalary < 4100000 then 'Below 4.1M'
-                        when e.baseSalary < 6150000 then '4.1M–6.15M'
-                        when e.baseSalary < 8200000 then '6.15M–8.2M'
-                        when e.baseSalary < 12300000 then '8.2M–12.3M'
-                        else '12.3M+' end
-                   when e.currency = 'GBP' then
-                   case when e.baseSalary < 40000 then 'Below 40k'
-                        when e.baseSalary < 60000 then '40k–60k'
-                        when e.baseSalary < 80000 then '60k–80k'
-                        when e.baseSalary < 120000 then '80k–120k'
-                        else '120k+' end
-                   when e.currency = 'EUR' then
-                   case when e.baseSalary < 46000 then 'Below 46k'
-                        when e.baseSalary < 69000 then '46k–69k'
-                        when e.baseSalary < 92000 then '69k–92k'
-                        when e.baseSalary < 138000 then '92k–138k'
-                        else '138k+' end
-                   when e.currency = 'CAD' then
-                   case when e.baseSalary < 67500 then 'Below 67.5k'
-                        when e.baseSalary < 101250 then '67.5k–101.25k'
-                        when e.baseSalary < 135000 then '101.25k–135k'
-                        when e.baseSalary < 202500 then '135k–202.5k'
-                        else '202.5k+' end
-                   when e.currency = 'AUD' then
-                   case when e.baseSalary < 74000 then 'Below 74k'
-                        when e.baseSalary < 111000 then '74k–111k'
-                        when e.baseSalary < 148000 then '111k–148k'
-                        when e.baseSalary < 222000 then '148k–222k'
-                        else '222k+' end
-                   else case when e.baseSalary < 50000 then 'Below 50k'
-                        when e.baseSalary < 75000 then '50k–75k'
-                        when e.baseSalary < 100000 then '75k–100k'
-                        when e.baseSalary < 150000 then '100k–150k'
-                        else '150k+' end end
-            order by e.currency, band
-            """)
+    @Query(value = """
+            WITH classified AS (
+                SELECT currency, CASE
+                    WHEN currency = 'INR' THEN CASE WHEN base_salary < 4100000 THEN 'Below 4.1M' WHEN base_salary < 6150000 THEN '4.1M–6.15M' WHEN base_salary < 8200000 THEN '6.15M–8.2M' WHEN base_salary < 12300000 THEN '8.2M–12.3M' ELSE '12.3M+' END
+                    WHEN currency = 'GBP' THEN CASE WHEN base_salary < 40000 THEN 'Below 40k' WHEN base_salary < 60000 THEN '40k–60k' WHEN base_salary < 80000 THEN '60k–80k' WHEN base_salary < 120000 THEN '80k–120k' ELSE '120k+' END
+                    WHEN currency = 'EUR' THEN CASE WHEN base_salary < 46000 THEN 'Below 46k' WHEN base_salary < 69000 THEN '46k–69k' WHEN base_salary < 92000 THEN '69k–92k' WHEN base_salary < 138000 THEN '92k–138k' ELSE '138k+' END
+                    WHEN currency = 'CAD' THEN CASE WHEN base_salary < 67500 THEN 'Below 67.5k' WHEN base_salary < 101250 THEN '67.5k–101.25k' WHEN base_salary < 135000 THEN '101.25k–135k' WHEN base_salary < 202500 THEN '135k–202.5k' ELSE '202.5k+' END
+                    WHEN currency = 'AUD' THEN CASE WHEN base_salary < 74000 THEN 'Below 74k' WHEN base_salary < 111000 THEN '74k–111k' WHEN base_salary < 148000 THEN '111k–148k' WHEN base_salary < 222000 THEN '148k–222k' ELSE '222k+' END
+                    ELSE CASE WHEN base_salary < 50000 THEN 'Below 50k' WHEN base_salary < 75000 THEN '50k–75k' WHEN base_salary < 100000 THEN '75k–100k' WHEN base_salary < 150000 THEN '100k–150k' ELSE '150k+' END
+                END AS band
+                FROM employees WHERE employment_status = 'ACTIVE'
+            ) SELECT currency, band, count(*) AS employeeCount FROM classified GROUP BY currency, band ORDER BY currency, band
+            """, nativeQuery = true)
     List<SalaryDistributionProjection> salaryDistribution();
 
     interface CurrencySummaryProjection {

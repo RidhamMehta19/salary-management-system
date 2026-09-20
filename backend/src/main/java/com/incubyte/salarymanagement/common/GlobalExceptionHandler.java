@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.persistence.OptimisticLockException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -62,6 +64,11 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, exception.getMessage(), Map.of());
     }
 
+    @ExceptionHandler({ObjectOptimisticLockingFailureException.class, OptimisticLockException.class})
+    ResponseEntity<ApiError> handleOptimisticLocking(Exception exception) {
+        return response(HttpStatus.CONFLICT, "The employee was changed by another request; reload and try again", Map.of());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiError> handleDatabaseConflict(DataIntegrityViolationException exception) {
         return response(HttpStatus.CONFLICT, databaseConflictMessage(exception), Map.of());
@@ -83,13 +90,26 @@ public class GlobalExceptionHandler {
     }
 
     private String databaseConflictMessage(DataIntegrityViolationException exception) {
-        String detail = exception.getMostSpecificCause().getMessage().toLowerCase();
-        if (detail.contains("employee_number") || detail.contains("employee number")) {
+        String constraint = constraintName(exception);
+        if ("ux_employees_employee_number_lower".equals(constraint)) {
             return "Employee ID already exists";
         }
-        if (detail.contains("email")) {
+        if ("ux_employees_email_lower".equals(constraint)) {
             return "Email address already exists";
         }
         return "The request conflicts with an existing record";
+    }
+
+    private String constraintName(DataIntegrityViolationException exception) {
+        Throwable cause = exception.getMostSpecificCause();
+        try {
+            Object serverError = cause.getClass().getMethod("getServerErrorMessage").invoke(cause);
+            if (serverError != null) {
+                return (String) serverError.getClass().getMethod("getConstraint").invoke(serverError);
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Keep the generic conflict response for non-PostgreSQL drivers.
+        }
+        return null;
     }
 }

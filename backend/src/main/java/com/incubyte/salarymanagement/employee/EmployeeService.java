@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Clock;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,12 +36,19 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final DepartmentRepository departmentRepository;
     private final SalaryHistoryRepository salaryHistoryRepository;
+    private final Clock clock;
 
     public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository,
-                           SalaryHistoryRepository salaryHistoryRepository) {
+                           SalaryHistoryRepository salaryHistoryRepository, Clock clock) {
         this.employeeRepository = employeeRepository;
         this.departmentRepository = departmentRepository;
         this.salaryHistoryRepository = salaryHistoryRepository;
+        this.clock = clock;
+    }
+
+    public EmployeeService(EmployeeRepository employeeRepository, DepartmentRepository departmentRepository,
+                           SalaryHistoryRepository salaryHistoryRepository) {
+        this(employeeRepository, departmentRepository, salaryHistoryRepository, Clock.systemUTC());
     }
 
     public PageResponse<EmployeeResponse> findEmployees(int page, int size, String sort, String search,
@@ -70,7 +78,7 @@ public class EmployeeService {
     public EmployeeResponse create(EmployeeRequest request) {
         validateUniqueForCreate(request);
         Department department = findDepartment(request.department());
-        Employee employee = new Employee(normalize(request.employeeNumber()), normalize(request.firstName()),
+        Employee employee = new Employee(normalizeEmployeeNumber(request.employeeNumber()), normalize(request.firstName()),
                 normalize(request.lastName()), normalizeEmail(request.email()), department, normalize(request.jobTitle()),
                 normalize(request.country()), normalize(request.location()), request.status(), request.hireDate(),
                 request.currency(), request.baseSalary(), request.bonus());
@@ -82,23 +90,40 @@ public class EmployeeService {
     }
 
     @Transactional
-    public EmployeeResponse update(UUID id, EmployeeRequest request) {
+    public EmployeeResponse update(UUID id, EmployeeUpdateRequest updateRequest) {
+        EmployeeRequest request = updateRequest.asEmployeeRequest();
         Employee employee = getEmployee(id);
+        if (updateRequest.version() == null || employee.getVersion() == null
+                ? updateRequest.version() != employee.getVersion()
+                : !updateRequest.version().equals(employee.getVersion())) {
+            throw new jakarta.persistence.OptimisticLockException(employee);
+        }
         validateUniqueForUpdate(id, request);
         boolean compensationChanged = compensationChanged(employee, request);
         Department department = findDepartment(request.department());
-        employee.update(normalize(request.firstName()), normalize(request.lastName()), normalizeEmail(request.email()),
+        employee.update(normalizeEmployeeNumber(request.employeeNumber()), normalize(request.firstName()), normalize(request.lastName()), normalizeEmail(request.email()),
                 department, normalize(request.jobTitle()), normalize(request.country()), normalize(request.location()),
                 request.status(), request.hireDate(), request.currency(), request.baseSalary(), request.bonus());
         Employee saved = employeeRepository.save(employee);
         if (compensationChanged) {
             salaryHistoryRepository.save(new SalaryHistory(saved, saved.getCurrency(), saved.getBaseSalary(), saved.getBonus(),
-                    LocalDate.now(), defaultReason(request.salaryChangeReason())));
+                    // Salary changes take effect on the UTC calendar date when the update is committed.
+                    LocalDate.now(clock), defaultReason(request.salaryChangeReason())));
             log.info("Updated compensation for employee {}", saved.getEmployeeNumber());
         } else {
             log.info("Updated employee {}", saved.getEmployeeNumber());
         }
         return EmployeeResponse.from(saved);
+    }
+
+    /** Compatibility overload for direct service callers; HTTP updates use the versioned DTO. */
+    @Transactional
+    public EmployeeResponse update(UUID id, EmployeeRequest request) {
+        Employee current = getEmployee(id);
+        return update(id, new EmployeeUpdateRequest(current.getVersion(), request.employeeNumber(), request.firstName(),
+                request.lastName(), request.email(), request.department(), request.jobTitle(), request.country(),
+                request.location(), request.status(), request.hireDate(), request.currency(), request.baseSalary(),
+                request.bonus(), request.salaryChangeReason()));
     }
 
     @Transactional
@@ -121,7 +146,7 @@ public class EmployeeService {
     }
 
     private void validateUniqueForCreate(EmployeeRequest request) {
-        if (employeeRepository.existsByEmployeeNumberIgnoreCase(normalize(request.employeeNumber()))) {
+        if (employeeRepository.existsByEmployeeNumberIgnoreCase(normalizeEmployeeNumber(request.employeeNumber()))) {
             throw new DuplicateResourceException("Employee ID already exists");
         }
         if (employeeRepository.existsByEmailIgnoreCase(normalizeEmail(request.email()))) {
@@ -130,7 +155,7 @@ public class EmployeeService {
     }
 
     private void validateUniqueForUpdate(UUID id, EmployeeRequest request) {
-        if (employeeRepository.existsByEmployeeNumberIgnoreCaseAndIdNot(normalize(request.employeeNumber()), id)) {
+        if (employeeRepository.existsByEmployeeNumberIgnoreCaseAndIdNot(normalizeEmployeeNumber(request.employeeNumber()), id)) {
             throw new DuplicateResourceException("Employee ID already exists");
         }
         if (employeeRepository.existsByEmailIgnoreCaseAndIdNot(normalizeEmail(request.email()), id)) {
@@ -140,7 +165,7 @@ public class EmployeeService {
 
     private Sort parseSort(String sort) {
         if (sort == null || sort.isBlank()) {
-            return Sort.by(Sort.Direction.ASC, "lastName", "firstName");
+            return Sort.by(Sort.Direction.ASC, "lastName", "firstName", "id");
         }
         String[] parts = sort.split(",", 2);
         String field = SORTABLE_FIELDS.get(parts[0]);
@@ -149,7 +174,7 @@ public class EmployeeService {
         }
         Sort.Direction direction = parts.length == 2 ? Sort.Direction.fromOptionalString(parts[1]).orElseThrow(
                 () -> new IllegalArgumentException("Sort direction must be asc or desc")) : Sort.Direction.ASC;
-        return Sort.by(direction, field);
+        return Sort.by(direction, field).and(Sort.by(Sort.Direction.ASC, "id"));
     }
 
     private boolean compensationChanged(Employee employee, EmployeeRequest request) {
@@ -163,5 +188,6 @@ public class EmployeeService {
     }
 
     private String normalize(String value) { return value.trim(); }
+    private String normalizeEmployeeNumber(String value) { return value.trim().toUpperCase(Locale.ROOT); }
     private String normalizeEmail(String email) { return email.trim().toLowerCase(Locale.ROOT); }
 }

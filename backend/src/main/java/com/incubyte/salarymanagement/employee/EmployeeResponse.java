@@ -9,12 +9,12 @@ public record EmployeeResponse(UUID id, String employeeNumber, String firstName,
                                String email, String department, String jobTitle, String country,
                                String location, EmploymentStatus status, LocalDate hireDate,
                                String currency, BigDecimal baseSalary, BigDecimal bonus,
-                               BigDecimal totalCompensation, Instant createdAt, Instant updatedAt) {
+                               BigDecimal totalCompensation, Instant createdAt, Instant updatedAt, Long version) {
     static EmployeeResponse from(Employee employee) {
         return new EmployeeResponse(employee.getId(), employee.getEmployeeNumber(), employee.getFirstName(),
                 employee.getLastName(), employee.getEmail(), employee.getDepartment().getName(), employee.getJobTitle(),
                 employee.getCountry(), employee.getLocation(), employee.getStatus(), employee.getHireDate(),
                 employee.getCurrency(), employee.getBaseSalary(), employee.getBonus(), employee.getTotalCompensation(),
-                employee.getCreatedAt(), employee.getUpdatedAt());
+                employee.getCreatedAt(), employee.getUpdatedAt(), employee.getVersion());
     }
 }
