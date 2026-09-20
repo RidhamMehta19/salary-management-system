@@ -31,7 +31,7 @@ This file is the working checkpoint for the Incubyte salary-management assessmen
 - [x] Centralized validation, not-found, duplicate, and unexpected-error responses.
 - [x] Backend unit tests: service rules, clock-controlled salary history, pagination metadata, dashboard mapping, and validation/error handling; API integration coverage is implemented but Docker-dependent.
 - [x] Backend checkpoint committed as `139e975` and `12cac67`.
-- [ ] Backend Testcontainers suite: 0 passing, 1 error (`EmployeeApiIntegrationTest`; Docker environment rejected by Testcontainers).
+- [ ] Backend Testcontainers suite: Testcontainers 1.21.4 started successfully; 9 tests passed and `EmployeeApiIntegrationTest.rejectsStaleUpdateWithConflict` failed because status was 200 instead of 409.
 
 ## Current frontend stage
 
