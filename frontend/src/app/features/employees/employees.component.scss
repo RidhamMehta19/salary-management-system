@@ -28,6 +28,9 @@ h1 {
   gap:.9rem;
   grid-template-columns:1.6fr repeat(4,1fr) auto
 }
+.filters > * {
+  min-width: 0;
+}
 .filters label {
   color:#486581;
   display:block;
@@ -36,6 +39,8 @@ h1 {
   margin-bottom:.4rem
 }
 .filters input,.filters p-select {
+  max-width: 100%;
+  min-width: 0;
   width:100%
 }
 .results-card {

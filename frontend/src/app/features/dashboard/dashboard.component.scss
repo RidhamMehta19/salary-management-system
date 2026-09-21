@@ -11,6 +11,7 @@
   --dash-space: 1rem;
   color: var(--dash-text);
   display: block;
+  min-width: 0;
 }
 
 .page-header {
@@ -19,6 +20,11 @@
   gap: 1.5rem;
   justify-content: space-between;
   margin-bottom: 2rem;
+  min-width: 0;
+}
+
+.page-header > div {
+  min-width: 0;
 }
 
 .eyebrow {
@@ -35,6 +41,7 @@ h1 {
   font-size: clamp(1.65rem, 3vw, 2.25rem);
   letter-spacing: -.04em;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .subtitle {
