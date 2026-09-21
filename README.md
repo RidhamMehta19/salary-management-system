@@ -6,7 +6,7 @@ SalaryFlow is a focused employee salary-management application for an HR Manager
 
 - Application: https://salary-management-portal-enhance.netlify.app
 - API health: https://salary-management-system-iwe0.onrender.com/actuator/health
-- Demo video: VIDEO_LINK_PLACEHOLDER
+- Demo video: https://yorecord.com/view?uid=7a883efd-c7e4-430d-bc57-0094abf26e97
 
 Free-tier hosting may take a while to wake up. If the first load is slow, wait about 60 seconds for the backend to wake up and refresh.
 
